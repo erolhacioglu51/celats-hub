@@ -1,56 +1,89 @@
--- Celat's Hub - Test Sürümü
+-- Celat's Hub TEST Sürümü - Sadece CH Butonu ve Dil Seçimi (DÜZENLİ)
+
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
 -- GUI Oluştur
-local ScreenGui = Instance.new("ScreenGui", game:GetService("CoreGui"))
-ScreenGui.Name = "CelatsHubTest"
+local gui = Instance.new("ScreenGui", game.CoreGui)
+gui.Name = "CelatsHubTest"
 
-local ToggleBtn = Instance.new("TextButton", ScreenGui)
-ToggleBtn.Size = UDim2.new(0, 50, 0, 50)
-ToggleBtn.Position = UDim2.new(0, 10, 0.5, -25)
-ToggleBtn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-ToggleBtn.Text = "CH"
-ToggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-ToggleBtn.Font = Enum.Font.GothamBold
-ToggleBtn.TextSize = 22
-ToggleBtn.Draggable = true
-ToggleBtn.Active = true
+-- Ana Menü Frame
+local main = Instance.new("Frame", gui)
+main.Size = UDim2.new(0, 400, 0, 250)
+main.Position = UDim2.new(0.5, -200, 0.5, -125)
+main.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+main.Visible = false
+main.Name = "MainUI"
+main.BorderSizePixel = 0
+main.Active = true
+main.Draggable = true
 
--- Ana Frame
-local MainFrame = Instance.new("Frame", ScreenGui)
-MainFrame.Size = UDim2.new(0, 450, 0, 300)
-MainFrame.Position = UDim2.new(0.5, -225, 0.5, -150)
-MainFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-MainFrame.Visible = false
-MainFrame.BorderSizePixel = 0
+-- Celat's Hub Başlık
+local title = Instance.new("TextLabel", main)
+title.Size = UDim2.new(1, 0, 0, 40)
+title.Position = UDim2.new(0, 0, 0, 0)
+title.BackgroundTransparency = 1
+title.Text = "Celat's Hub"
+title.Font = Enum.Font.GothamBlack
+title.TextSize = 28
+title.TextColor3 = Color3.new(0, 0, 0)
 
--- Başlık
-local Title = Instance.new("TextLabel", MainFrame)
-Title.Size = UDim2.new(1, 0, 0, 40)
-Title.Position = UDim2.new(0, 0, 0, 0)
-Title.BackgroundTransparency = 1
-Title.Text = "Celat's Hub"
-Title.Font = Enum.Font.GothamBlack
-Title.TextColor3 = Color3.new(0, 0, 0)
-Title.TextStrokeTransparency = 0
-Title.TextStrokeColor3 = Color3.new(0.2, 0.2, 0.2)
-Title.TextSize = 28
+-- Dil Seçim Frame
+local langFrame = Instance.new("Frame", main)
+langFrame.Size = UDim2.new(1, 0, 0, 150)
+langFrame.Position = UDim2.new(0, 0, 0, 50)
+langFrame.BackgroundTransparency = 1
 
--- Dil Seçim Paneli
-local LanguageFrame = Instance.new("Frame", MainFrame)
-LanguageFrame.Size = UDim2.new(1, 0, 0, 80)
-LanguageFrame.Position = UDim2.new(0, 0, 0, 60)
-LanguageFrame.BackgroundTransparency = 1
+local turkce = Instance.new("TextButton", langFrame)
+turkce.Size = UDim2.new(0.4, 0, 0.4, 0)
+turkce.Position = UDim2.new(0.05, 0, 0.3, 0)
+turkce.Text = "Türkçe"
+turkce.Font = Enum.Font.GothamBold
+turkce.TextSize = 22
+turkce.BackgroundColor3 = Color3.fromRGB(10,10,10)
+turkce.TextColor3 = Color3.fromRGB(255,255,255)
+turkce.BorderSizePixel = 0
 
-local BtnTR = Instance.new("TextButton", LanguageFrame)
-BtnTR.Size = UDim2.new(0.45, 0, 0.8, 0)
-BtnTR.Position = UDim2.new(0.05, 0, 0.1, 0)
-BtnTR.Text = "Türkçe"
-BtnTR.Font = Enum.Font.GothamBold
-BtnTR.TextSize = 22
-BtnTR.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
-BtnTR.TextColor3 = Color3.new(1, 1, 1)
+local ingilizce = Instance.new("TextButton", langFrame)
+ingilizce.Size = UDim2.new(0.4, 0, 0.4, 0)
+ingilizce.Position = UDim2.new(0.55, 0, 0.3, 0)
+ingilizce.Text = "English"
+ingilizce.Font = Enum.Font.GothamBold
+ingilizce.TextSize = 22
+ingilizce.BackgroundColor3 = Color3.fromRGB(10,10,10)
+ingilizce.TextColor3 = Color3.fromRGB(255,255,255)
+ingilizce.BorderSizePixel = 0
 
-local BtnEN = Instance.new("TextButton", LanguageFrame)
-BtnEN.Size = UDim2.new
+-- CH (Aç/Kapat) Butonu
+local toggle = Instance.new("TextButton", gui)
+toggle.Size = UDim2.new(0, 50, 0, 50)
+toggle.Position = UDim2.new(0, 20, 0.5, -25)
+toggle.Text = "CH"
+toggle.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+toggle.TextColor3 = Color3.fromRGB(255,255,255)
+toggle.Font = Enum.Font.GothamBold
+toggle.TextSize = 20
+toggle.Name = "ToggleCH"
+toggle.BorderSizePixel = 0
+toggle.Active = true
+toggle.Draggable = true
+
+-- Buton Fonksiyonu: Aç / Kapat
+toggle.MouseButton1Click:Connect(function()
+	main.Visible = not main.Visible
+end)
+
+-- Dil Seçimi
+turkce.MouseButton1Click:Connect(function()
+	print("Dil seçimi: Türkçe")
+	turkce.Text = "Seçildi ✓"
+	ingilizce.Text = "English"
+end)
+
+ingilizce.MouseButton1Click:Connect(function()
+	print("Language selected: English")
+	ingilizce.Text = "Selected ✓"
+	turkce.Text = "Türkçe"
+end)
+
+print("✅ Celat's Hub TEST Sürümü Yüklendi.")
