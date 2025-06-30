@@ -1,8 +1,3 @@
-game.StarterGui:SetCore("SendNotification", {
-    Title = "Celat's Hub",
-    Text = "Script başarıyla yüklendi!",
-    Duration = 5
-})
 -- Celat's Hub - PRO MM2 Script (Delta Executor Uyumlu) -- Hazırlayan: Team Celat’s Hub™
 
 local Players = game:GetService("Players") local LocalPlayer = Players.LocalPlayer local CoreGui = game:GetService("CoreGui")
@@ -40,4 +35,3 @@ local Players = game:GetService("Players") local LocalPlayer = Players.LocalPlay
 -- OTOMATİK KAZAN AddButton("🏆 Otomatik Kazan", function() for _, p in pairs(Players:GetPlayers()) do if p ~= LocalPlayer and p.Character then p.Character:BreakJoints() end end end)
 
 -- KAPAT AddButton("❌ Menüyü Kapat", function() MainFrame.Visible = false end)
-
