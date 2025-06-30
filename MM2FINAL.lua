@@ -1,18 +1,20 @@
--- Team Celat's Hub | MM2 Pro Mobil Dostu Tam Script
+-- Team Celat's Hub - PRO MM2 Script
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
-local CoreGui = game:GetService("CoreGui")
 local UserInputService = game:GetService("UserInputService")
+local CoreGui = game:GetService("CoreGui")
 
--- GUI oluştur
+-- GUI Setup
 local CelatsGUI = Instance.new("ScreenGui")
-CelatsGUI.Name = "CelatsHubProMobile"
+CelatsGUI.Name = "CelatsHubPro"
 CelatsGUI.ResetOnSpawn = false
 CelatsGUI.Parent = CoreGui
 
+-- CH Logo (Sürüklenebilir, tıklayınca menü açar)
 local CHLogo = Instance.new("TextLabel")
+CHLogo.Name = "CHLogo"
 CHLogo.Size = UDim2.new(0, 100, 0, 40)
 CHLogo.Position = UDim2.new(0, 10, 0, 60)
 CHLogo.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
@@ -20,249 +22,228 @@ CHLogo.TextColor3 = Color3.new(1, 1, 1)
 CHLogo.Text = "CH"
 CHLogo.Font = Enum.Font.GothamBlack
 CHLogo.TextSize = 24
-CHLogo.ZIndex = 20
 CHLogo.Active = true
 CHLogo.Draggable = true
 CHLogo.Parent = CelatsGUI
 
-local TitleLabel = Instance.new("TextLabel")
-TitleLabel.Size = UDim2.new(1, 0, 0, 50)
-TitleLabel.Position = UDim2.new(0, 0, 0, 0)
-TitleLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-TitleLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
-TitleLabel.Text = "Team Celat's Hub"
-TitleLabel.Font = Enum.Font.Arcade
-TitleLabel.TextSize = 30
-TitleLabel.TextStrokeTransparency = 0
-TitleLabel.Parent = CelatsGUI
-
+-- Main Menu Frame
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 520, 0, 600)
-MainFrame.Position = UDim2.new(0.5, -260, 0.5, -300)
+MainFrame.Size = UDim2.new(0, 520, 0, 650)
+MainFrame.Position = UDim2.new(0.5, -260, 0.5, -325)
 MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 MainFrame.Visible = false
 MainFrame.Active = true
 MainFrame.Draggable = true
 MainFrame.Parent = CelatsGUI
 
-local Scroll = Instance.new("ScrollingFrame")
-Scroll.Size = UDim2.new(1, 0, 1, 0)
-Scroll.CanvasSize = UDim2.new(0, 0, 0, 1400)
-Scroll.ScrollBarThickness = 8
-Scroll.BackgroundTransparency = 1
-Scroll.Parent = MainFrame
-
 local UIListLayout = Instance.new("UIListLayout")
 UIListLayout.Padding = UDim.new(0, 8)
 UIListLayout.FillDirection = Enum.FillDirection.Vertical
 UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
-UIListLayout.Parent = Scroll
+UIListLayout.Parent = MainFrame
 
--- Dil seçimi paneli
-local langFrame = Instance.new("Frame")
-langFrame.Size = UDim2.new(0, 320, 0, 160)
-langFrame.Position = UDim2.new(0.5, -160, 0.5, -80)
-langFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-langFrame.BorderSizePixel = 2
-langFrame.Parent = CelatsGUI
+-- Title Label
+local TitleLabel = Instance.new("TextLabel")
+TitleLabel.Size = UDim2.new(1, 0, 0, 50)
+TitleLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+TitleLabel.TextColor3 = Color3.fromRGB(0, 255, 255)
+TitleLabel.Text = "Team Celat's Hub"
+TitleLabel.Font = Enum.Font.Arcade
+TitleLabel.TextSize = 32
+TitleLabel.TextStrokeTransparency = 0
+TitleLabel.Parent = MainFrame
 
-local langTitle = Instance.new("TextLabel")
-langTitle.Size = UDim2.new(1, 0, 0, 40)
-langTitle.BackgroundTransparency = 1
-langTitle.TextColor3 = Color3.fromRGB(0, 255, 0)
-langTitle.Text = "Select Language / Dil Seçiniz"
-langTitle.Font = Enum.Font.SourceSansBold
-langTitle.TextSize = 22
-langTitle.Parent = langFrame
-
-local function createLangButton(text, pos, callback)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0, 140, 0, 50)
-    btn.Position = pos
-    btn.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-    btn.TextColor3 = Color3.new(1,1,1)
-    btn.Text = text
-    btn.Font = Enum.Font.SourceSansBold
-    btn.TextSize = 20
-    btn.Parent = langFrame
-    btn.MouseButton1Click:Connect(callback)
+-- Language Setup
+local currentLang = "TR"
+local function localize(tr, en)
+    return currentLang == "TR" and tr or en
 end
 
--- Genel yardımcı fonksiyonlar
-local function AddButton(text, parent, y, callback, emoji)
+-- Button Creator with Emoji and toggle highlight
+local buttons = {}
+local toggledButtons = {}
+local function CreateButton(text, emoji, callback)
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0, 480, 0, 45)
-    btn.Position = UDim2.new(0, 0, 0, y)
+    btn.Size = UDim2.new(0.95, 0, 0, 40)
     btn.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
     btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    btn.Font = Enum.Font.SourceSansBold
+    btn.Font = Enum.Font.GothamBold
     btn.TextSize = 20
-    btn.TextXAlignment = Enum.TextXAlignment.Left
-    btn.Parent = parent
-    btn.Text = (emoji and (emoji.." ") or "")..text
+    btn.Text = emoji .. " " .. text
+    btn.Parent = MainFrame
+
+    local toggled = false
+    btn.MouseButton1Click:Connect(function()
+        toggled = not toggled
+        if toggled then
+            btn.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+        else
+            btn.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+        end
+        toggledButtons[text] = toggled
+        callback(toggled)
+    end)
+    buttons[text] = btn
+    return btn
+end
+
+local function CreateSimpleButton(text, emoji, callback)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0.95, 0, 0, 40)
+    btn.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.Font = Enum.Font.GothamBold
+    btn.TextSize = 20
+    btn.Text = emoji .. " " .. text
+    btn.Parent = MainFrame
     btn.MouseButton1Click:Connect(callback)
     return btn
 end
 
-local function AddToggle(text, parent, y, default, callback, emoji)
-    local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(0, 480, 0, 45)
-    frame.Position = UDim2.new(0, 0, 0, y)
-    frame.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-    frame.Parent = parent
-
-    local label = Instance.new("TextLabel")
-    label.Text = (emoji and (emoji.." ") or "")..text
-    label.TextColor3 = Color3.new(1,1,1)
-    label.Font = Enum.Font.SourceSansBold
-    label.TextSize = 20
-    label.Size = UDim2.new(0.8, 0, 1, 0)
-    label.BackgroundTransparency = 1
-    label.TextXAlignment = Enum.TextXAlignment.Left
-    label.Parent = frame
-
-    local toggle = Instance.new("TextButton")
-    toggle.Size = UDim2.new(0.2, -10, 0.7, 0)
-    toggle.Position = UDim2.new(0.8, 5, 0.15, 0)
-    toggle.BackgroundColor3 = default and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(150, 0, 0)
-    toggle.Text = default and "ON" or "OFF"
-    toggle.Font = Enum.Font.SourceSansBold
-    toggle.TextSize = 18
-    toggle.TextColor3 = Color3.new(1,1,1)
-    toggle.Parent = frame
-
-    local enabled = default
-
-    toggle.MouseButton1Click:Connect(function()
-        enabled = not enabled
-        toggle.BackgroundColor3 = enabled and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(150, 0, 0)
-        toggle.Text = enabled and "ON" or "OFF"
-        callback(enabled)
-    end)
-    return frame, toggle
-end
-
-local function AddSliderWithBox(text, parent, y, min, max, default, callback, emoji)
-    local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(0, 480, 0, 60)
-    frame.Position = UDim2.new(0, 0, 0, y)
-    frame.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-    frame.Parent = parent
-
-    local label = Instance.new("TextLabel")
-    label.Text = (emoji and (emoji.." ") or "")..text..": "..tostring(default)
-    label.TextColor3 = Color3.new(1,1,1)
-    label.Font = Enum.Font.SourceSansBold
-    label.TextSize = 18
-    label.Size = UDim2.new(1, 0, 0, 25)
-    label.BackgroundTransparency = 1
-    label.TextXAlignment = Enum.TextXAlignment.Left
-    label.Parent = frame
-
-    local sliderBox = Instance.new("TextBox")
-    sliderBox.Size = UDim2.new(1, 0, 0, 30)
-    sliderBox.Position = UDim2.new(0, 0, 0, 25)
-    sliderBox.BackgroundColor3 = Color3.fromRGB(30,30,30)
-    sliderBox.TextColor3 = Color3.new(1,1,1)
-    sliderBox.Text = tostring(default)
-    sliderBox.ClearTextOnFocus = false
-    sliderBox.Font = Enum.Font.SourceSansBold
-    sliderBox.TextSize = 20
-    sliderBox.Parent = frame
-
-    sliderBox.FocusLost:Connect(function()
-        local val = tonumber(sliderBox.Text)
-        if val and val >= min and val <= max then
-            label.Text = (emoji and (emoji.." ") or "")..text..": "..tostring(val)
-            callback(val)
-        else
-            sliderBox.Text = tostring(default)
-        end
-    end)
-    return frame, sliderBox, label
-end
-
--- Roller ve işlevleri
-local function isKiller(p)
+-- Role Checkers
+local function IsKiller(p)
     return p.Backpack:FindFirstChild("Knife") or (p.Character and p.Character:FindFirstChild("Knife"))
 end
-local function isSheriff(p)
+local function IsSheriff(p)
     return p.Backpack:FindFirstChild("Gun") or (p.Character and p.Character:FindFirstChild("Gun"))
 end
-local function isInnocent(p)
-    return not isKiller(p) and not isSheriff(p)
+local function IsInnocent(p)
+    return not IsKiller(p) and not IsSheriff(p)
 end
 
-local function killRole(roleCheck)
+-- Kill players by role
+local function KillByRole(roleFunc)
     for _, p in pairs(Players:GetPlayers()) do
         if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("Humanoid") then
-            if roleCheck(p) then
+            if roleFunc(p) then
                 p.Character.Humanoid.Health = 0
             end
         end
     end
 end
 
--- ESP Highlight
-local function createESP()
-    for _, player in pairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Head") then
-            local highlight = player.Character:FindFirstChildOfClass("Highlight") or Instance.new("Highlight")
-            highlight.FillTransparency = 0.5
-            highlight.OutlineTransparency = 1
-            highlight.Adornee = player.Character
-            highlight.Parent = player.Character
-            if isKiller(player) then
-                highlight.FillColor = Color3.fromRGB(255, 0, 0)
-            elseif isSheriff(player) then
-                highlight.FillColor = Color3.fromRGB(0, 0, 255)
+-- Chat notification
+local function SendChat(msg)
+    local chatEvent = ReplicatedStorage:WaitForChild("DefaultChatSystemChatEvents"):WaitForChild("SayMessageRequest")
+    chatEvent:FireServer(msg, "All")
+end
+
+-- ESP Highlights
+local espEnabled = false
+local function UpdateESP()
+    for _, p in pairs(Players:GetPlayers()) do
+        if p.Character and p.Character:FindFirstChild("Head") then
+            local hl = p.Character:FindFirstChildOfClass("Highlight")
+            if espEnabled then
+                if not hl then
+                    hl = Instance.new("Highlight")
+                    hl.Parent = p.Character
+                    hl.Adornee = p.Character
+                end
+                if IsKiller(p) then
+                    hl.FillColor = Color3.fromRGB(255, 0, 0)
+                elseif IsSheriff(p) then
+                    hl.FillColor = Color3.fromRGB(0, 0, 255)
+                else
+                    hl.FillColor = Color3.fromRGB(0, 255, 0)
+                end
+                hl.FillTransparency = 0.5
+                hl.OutlineTransparency = 1
             else
-                highlight.FillColor = Color3.fromRGB(0, 255, 0)
+                if hl then
+                    hl:Destroy()
+                end
             end
         end
     end
+end-- Toggle ESP
+local function ToggleESP(state)
+    espEnabled = state
+    UpdateESP()
+    SendChat(state and localize("ESP Açıldı!", "ESP Enabled!") or localize("ESP Kapatıldı!", "ESP Disabled!"))
 end
 
--- Kahkaha atma
-local function laugh()
-    ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer("🤣 HAHAHAHA", "All")
-end
-
--- Otomatik kazanma (haritaya ışınlanma)
-local function autoWin()
-    local map = workspace:FindFirstChild("Map")
-    if map and LocalPlayer.Character and LocalPlayer.Character.PrimaryPart then
-        LocalPlayer.Character:SetPrimaryPartCFrame(CFrame.new(map.Position))
-    end
-end
-
--- FPS limiti ayarı (Delta Executor destekli)
-local function setFPS(cap)
-    if setfpscap then
-        setfpscap(cap)
-    elseif setfpscapfunction then
-        setfpscapfunction(cap)
-    elseif setfps then
-        setfps(cap)
-    end
-end
-
--- Hız ve zıplama
+-- Speed & Jump
 local speed = 16
 local jumpPower = 50
-local function updateSpeedJump()
+local function UpdateSpeedJump()
     if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
         LocalPlayer.Character.Humanoid.WalkSpeed = speed
         LocalPlayer.Character.Humanoid.JumpPower = jumpPower
     end
 end
 
--- NoClip modu
+local function SetSpeed(val)
+    speed = val
+    UpdateSpeedJump()
+    SendChat(localize("Hız ayarlandı: ", "Speed set to: ") .. val)
+end
+
+local function SetJump(val)
+    jumpPower = val
+    UpdateSpeedJump()
+    SendChat(localize("Zıplama ayarlandı: ", "Jump set to: ") .. val)
+end
+
+-- Auto Pickup Weapon
+local autoPickup = false
+local pickupConn
+local function ToggleAutoPickup(state)
+    autoPickup = state
+    if autoPickup then
+        pickupConn = RunService.Heartbeat:Connect(function()
+            if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                local hrp = LocalPlayer.Character.HumanoidRootPart
+                for _, item in pairs(workspace:GetChildren()) do
+                    if (item.Name == "Knife" or item.Name == "Gun") and item:IsA("Tool") then
+                        local dist = (item.Position - hrp.Position).Magnitude
+                        if dist < 10 then
+                            item.Parent = LocalPlayer.Backpack
+                        end
+                    end
+                end
+            end
+        end)
+    else
+        if pickupConn then
+            pickupConn:Disconnect()
+            pickupConn = nil
+        end
+    end
+    SendChat(localize("Otomatik silah alma " .. (state and "açıldı!" or "kapandı!"), "Auto pickup " .. (state and "enabled!" or "disabled!")))
+end
+
+-- God Mode
+local godMode = false
+local godConn
+local function ToggleGodMode(state)
+    godMode = state
+    if godMode then
+        godConn = RunService.Heartbeat:Connect(function()
+            if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+                LocalPlayer.Character.Humanoid.Health = LocalPlayer.Character.Humanoid.MaxHealth
+            else
+                if godConn then
+                    godConn:Disconnect()
+                    godConn = nil
+                end
+            end
+        end)
+    else
+        if godConn then
+            godConn:Disconnect()
+            godConn = nil
+        end
+    end
+    SendChat(localize("God Mode " .. (state and "açıldı!" or "kapandı!"), "God Mode " .. (state and "enabled!" or "disabled!")))
+end
+
+-- NoClip
 local noclip = false
 local noclipConn
-local function toggleNoClip()
-    noclip = not noclip
+local function ToggleNoClip(state)
+    noclip = state
     if noclip then
         noclipConn = RunService.Stepped:Connect(function()
             if LocalPlayer.Character then
@@ -286,83 +267,94 @@ local function toggleNoClip()
             end
         end
     end
+    SendChat(localize("NoClip " .. (state and "açıldı!" or "kapandı!"), "NoClip " .. (state and "enabled!" or "disabled!")))
 end
 
--- God Mode
-local godMode = false
-local godConn
-local function toggleGodMode()
-    godMode = not godMode
-    if godMode then
-        godConn = RunService.Heartbeat:Connect(function()
-            if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-                LocalPlayer.Character.Humanoid.Health = LocalPlayer.Character.Humanoid.MaxHealth
-            else
-                if godConn then
-                    godConn:Disconnect()
-                    godConn = nil
-                end
+-- Aimbot (Katil'i hedefler)
+local aimbot = false
+RunService.RenderStepped:Connect(function()
+    if aimbot then
+        local target = nil
+        for _, p in pairs(Players:GetPlayers()) do
+            if IsKiller(p) then
+                target = p
+                break
             end
-        end)
+        end
+        if target and target.Character and target.Character:FindFirstChild("Head") then
+            if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(LocalPlayer.Character.HumanoidRootPart.Position, target.Character.Head.Position)
+            end
+        end
+    end
+end)
+
+-- Kill Buttons (Tek Tıkla)
+CreateSimpleButton(localize("Katil Katili Öldür", "Kill Murderer"), "🔪", function()
+    KillByRole(IsKiller)
+    SendChat(localize("Katil Öldürüldü!", "Killer killed!"))
+end)
+CreateSimpleButton(localize("Şerifi Öldür", "Kill Sheriff"), "🔵", function()
+    KillByRole(IsSheriff)
+    SendChat(localize("Şerif Öldürüldü!", "Sheriff killed!"))
+end)
+CreateSimpleButton(localize("Masumları Öldür", "Kill Innocents"), "🟢", function()
+    KillByRole(IsInnocent)
+    SendChat(localize("Masumlar Öldürüldü!", "Innocents killed!"))
+end)
+
+-- Toggles with highlight
+CreateButton(localize("ESP", "ESP"), "👁️", ToggleESP)
+CreateButton(localize("Otomatik Silah Alma", "Auto Pickup"), "🎒", ToggleAutoPickup)
+CreateButton(localize("God Mode", "God Mode"), "🛡️", ToggleGodMode)
+CreateButton(localize("NoClip", "NoClip"), "👻", ToggleNoClip)
+CreateButton(localize("Aimbot (Katil Hedefle)", "Aimbot (Lock Killer)"), "🎯", function(state)
+    aimbot = state
+    SendChat(localize("Aimbot " .. (state and "açıldı!" or "kapandı!"), "Aimbot " .. (state and "enabled!" or "disabled!")))
+end)
+
+-- Speed / Jump Ayarları
+local speedSlider = Instance.new("TextBox")
+speedSlider.Size = UDim2.new(0.9, 0, 0, 30)
+speedSlider.Position = UDim2.new(0.05, 0, 0, 0)
+speedSlider.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+speedSlider.TextColor3 = Color3.new(1,1,1)
+speedSlider.Font = Enum.Font.SourceSansBold
+speedSlider.TextSize = 18
+speedSlider.PlaceholderText = localize("Hız (16-100)", "Speed (16-100)")
+speedSlider.Text = tostring(speed)
+speedSlider.Parent = MainFrame
+
+speedSlider.FocusLost:Connect(function()
+    local val = tonumber(speedSlider.Text)
+    if val and val >= 16 and val <= 100 then
+        SetSpeed(val)
     else
-        if godConn then
-            godConn:Disconnect()
-            godConn = nil
-        end
+        speedSlider.Text = tostring(speed)
     end
-end
+end)
 
--- Chat bildirimi
-local function sendChatNotification(msg)
-    ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(msg, "All")
-end
+local jumpSlider = Instance.new("TextBox")
+jumpSlider.Size = UDim2.new(0.9, 0, 0, 30)
+jumpSlider.Position = UDim2.new(0.05, 0, 0, 40)
+jumpSlider.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+jumpSlider.TextColor3 = Color3.new(1,1,1)
+jumpSlider.Font = Enum.Font.SourceSansBold
+jumpSlider.TextSize = 18
+jumpSlider.PlaceholderText = localize("Zıplama (50-200)", "Jump (50-200)")
+jumpSlider.Text = tostring(jumpPower)
+jumpSlider.Parent = MainFrame
 
--- Otomatik silah alma
-local weaponPickupConn
-local function autoPickupWeapon()
-    if weaponPickupConn then weaponPickupConn:Disconnect() end
-    weaponPickupConn = RunService.Heartbeat:Connect(function()
-        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-            local hrp = LocalPlayer.Character.HumanoidRootPart
-            for _, item in pairs(workspace:GetChildren()) do
-                if item.Name == "Knife" or item.Name == "Gun" then
-                    local dist = (item.Position - hrp.Position).Magnitude
-                    if dist < 10 then
-                        if item:IsA("Tool") then
-                            item.Parent = LocalPlayer.Backpack
-                        end
-                    end
-                end
-            end
-        end
-    end)
-end
-
--- Aimbot (basit, katili kilitler ve hedefe bakar)
-local aimbotEnabled = false
-local function getKiller()
-    for _, p in pairs(Players:GetPlayers()) do
-        if isKiller(p) then
-            return p
-        end
+jumpSlider.FocusLost:Connect(function()
+    local val = tonumber(jumpSlider.Text)
+    if val and val >= 50 and val <= 200 then
+        SetJump(val)
+    else
+        jumpSlider.Text = tostring(jumpPower)
     end
-    return nil
-end
-local function aimbot()
-    if not aimbotEnabled then return end
-    local target = getKiller()
-    if target and target.Character and target.Character:FindFirstChild("Head") then
-        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-            LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(
-                LocalPlayer.Character.HumanoidRootPart.Position,
-                target.Character.Head.Position
-            )
-        end
-    end
-end
-RunService.RenderStepped:Connect(aimbot)
+end)
 
--- Menü aç/kapa tuşu (CH Logo dokunma)
+-- Menü aç/kapa
 local toggleDebounce = false
 CHLogo.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.Touch and not toggleDebounce then
@@ -373,51 +365,4 @@ CHLogo.InputBegan:Connect(function(input)
     end
 end)
 
--- Dil seçimi sonrası menü butonlarını ekle
-local currentLang = "TR"
-local buttonY = 10
-local buttonHeight = 50
-local buttons = {}
-
-local function clearButtons()
-    for _, btn in pairs(buttons) do
-        btn:Destroy()
-    end
-    buttons = {}
-end
-
-local function addButtonY()
-    buttonY = buttonY + buttonHeight + 5
-end
-
-local function setupMenu(lang)
-    clearButtons()
-    buttonY = 10
-    currentLang = lang
-
-    local function tr(text) return (lang == "TR") and text or "" end
-    local function en(text) return (lang == "EN") and text or "" end
-
-    local function localize(trText, enText)
-        if lang == "TR" then return trText else return enText end
-    end
-
-    buttons[#buttons+1] = AddButton(localize("🔪 Katili Öldür", "🔪 Kill the Murderer"), Scroll, buttonY, function() killRole(isKiller) end, "🔪")
-    addButtonY()
-    buttons[#buttons+1] = AddButton(localize("🔵 Şerifi Öldür", "🔵 Kill the Sheriff"), Scroll, buttonY, function() killRole(isSheriff) end, "🔵")
-    addButtonY()
-    buttons[#buttons+1] = AddButton(localize("🟢 Masumları Öldür", "🟢 Kill the Innocents"), Scroll, buttonY, function() killRole(isInnocent) end, "🟢")
-    addButtonY()
-    buttons[#buttons+1] = AddButton(localize("🤣 Kahkaha At", "🤣 Laugh"), Scroll, buttonY, laugh, "🤣")
-    addButtonY()
-    buttons[#buttons+1] = AddButton(localize("🏆 Otomatik Kazan", "🏆 Auto Win"), Scroll, buttonY, autoWin, "🏆")
-    addButtonY()
-    buttons[#buttons+1] = AddButton(localize("👁️ Rol ESP Göster", "👁️ Show Role ESP"), Scroll, buttonY, createESP, "👁️")
-    addButtonY()
-    buttons[#buttons+1] = AddButton(localize("🎮 FPS 60 Limiti", "🎮 FPS Limit 60"), Scroll, buttonY, function() setFPS(60) end, "🎮")
-    addButtonY()
-    buttons[#buttons+1] = AddToggle(localize("🚫 NoClip Aç/Kapa", "🚫 Toggle NoClip"), Scroll, buttonY, false, toggleNoClip, "🚫")
-    addButtonY()
-    buttons[#buttons+1] = AddToggle(localize("🛡️ God Mode Aç/Kapa", "🛡️ Toggle God Mode"), Scroll, buttonY, false, toggleGodMode, "🛡️")
-    addButtonY()
-    buttons[#buttons+1] = AddToggle(localize("🔫 Otomatik Silah Alma", "🔫 Auto Pickup Weapon"), Scroll, buttonY, false, auto
+print("Team Celat's Hub PRO Script loaded!")
