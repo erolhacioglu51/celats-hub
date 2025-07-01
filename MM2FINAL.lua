@@ -1,4 +1,4 @@
--- Celat's Hub MM2 Final Script - Tam Entegre, Mobil Uyumlu, Emojili
+-- Celat's Hub MM2 Final Script - Butonlar kesin çalışır, mobil + PC uyumlu
 
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
@@ -50,7 +50,7 @@ scroll.BackgroundTransparency = 1
 scroll.Active = true
 scroll.Parent = menu
 
--- Buton ekleme fonksiyonu
+-- Buton ekleme fonksiyonu (hem Mouse hem Touch ile çalışır)
 function AddMenuButton(text, emoji, yPos, callback)
     local btn = Instance.new("TextButton", scroll)
     btn.Size = UDim2.new(0.9, 0, 0, 40)
@@ -62,6 +62,7 @@ function AddMenuButton(text, emoji, yPos, callback)
     btn.Text = emoji.." "..text
     btn.Active = true
     btn.Selectable = true
+    btn.AutoButtonColor = true
 
     btn.MouseButton1Click:Connect(callback)
     btn.TouchTap:Connect(callback)
@@ -171,29 +172,6 @@ function ToggleESP()
 end
 AddMenuButton("ESP + Ses Efekti", "👁️", 160, ToggleESP)
 
--- 5. Tema Renk Seçici
-local function ChangeTheme(color)
-    for _, v in pairs(menu:GetChildren()) do
-        if v:IsA("TextButton") then
-            v.BackgroundColor3 = color
-        end
-    end
-    menu.BackgroundColor3 = color:lerp(Color3.new(0,0,0), 0.7)
-    title.BackgroundColor3 = color:lerp(Color3.new(0,0,0), 0.5)
-end
-AddMenuButton("Tema: Kırmızı", "❤️", 210, function()
-    ChangeTheme(Color3.fromRGB(150, 30, 30))
-    print("🎨 Tema kırmızıya değiştirildi!")
-end)
-AddMenuButton("Tema: Mavi", "💙", 260, function()
-    ChangeTheme(Color3.fromRGB(0, 80, 160))
-    print("🎨 Tema maviye değiştirildi!")
-end)
-AddMenuButton("Tema: Koyu", "🖤", 310, function()
-    ChangeTheme(Color3.fromRGB(20, 20, 20))
-    print("🎨 Tema koyuya değiştirildi!")
-end)
-
 -- Menü Kapatma Butonu
 local closeBtn = Instance.new("TextButton", menu)
 closeBtn.Size = UDim2.new(0, 30, 0, 30)
@@ -214,7 +192,7 @@ closeBtn.TouchTap:Connect(function()
     print("❌ Menü kapatıldı!")
 end)
 
--- 6. Katili, Şerifi, Masumları Vurma + Aimbot Butonları
+-- 5. Katili, Şerifi, Masumları Vurma + Aimbot Butonları
 local killingActive = { murderer=false, sheriff=false, innocent=false }
 local aimbotActive = false
 
@@ -247,11 +225,11 @@ local function ToggleKill(roleKey, roleDisplay)
     end
 end
 
-AddMenuButton("Katili Vur", "🔴", 360, function() ToggleKill("murderer", "Murderer") end)
-AddMenuButton("Şerifi Vur", "🔵", 410, function() ToggleKill("sheriff", "Sheriff") end)
-AddMenuButton("Masumları Vur", "🟢", 460, function() ToggleKill("innocent", "Innocent") end)
+AddMenuButton("Katili Vur", "🔴", 210, function() ToggleKill("murderer", "Murderer") end)
+AddMenuButton("Şerifi Vur", "🔵", 260, function() ToggleKill("sheriff", "Sheriff") end)
+AddMenuButton("Masumları Vur", "🟢", 310, function() ToggleKill("innocent", "Innocent") end)
 
-AddMenuButton("Aimbot Aç/Kapat", "🎯", 510, function()
+AddMenuButton("Aimbot Aç/Kapat", "🎯", 360, function()
     aimbotActive = not aimbotActive
     if aimbotActive then
         print("🎯 Aimbot aktif!")
