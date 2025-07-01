@@ -1,434 +1,264 @@
--- Celat's Hub MM2 Script - Bölüm 1/4
--- GUI, Dil Seçimi ve CH Logosu 🌀💙
+-- Celat's Hub MM2 Final Script - BÖLÜM 1/5
+-- Giriş: GUI Tanımlama, Menü Oluşturma, CH logosu vs.
 
 local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local CoreGui = game:GetService("CoreGui")
+local player = Players.LocalPlayer
+local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+gui.Name = "CelatsHubUI"
+gui.ResetOnSpawn = false
 
--- Önce varsa eski GUI'yi temizle 🧹
-if CoreGui:FindFirstChild("CelatsHubGUI") then
-    CoreGui.CelatsHubGUI:Destroy()
-end
+-- Kayan CH Logosu
+local logo = Instance.new("TextButton")
+logo.Text = "🌟 CH"
+logo.Size = UDim2.new(0, 60, 0, 60)
+logo.Position = UDim2.new(0, 20, 0, 200)
+logo.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+logo.TextColor3 = Color3.fromRGB(255, 255, 255)
+logo.Font = Enum.Font.GothamBold
+logo.TextSize = 18
+logo.Draggable = true
+logo.Parent = gui
 
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "CelatsHubGUI"
-ScreenGui.Parent = CoreGui
+-- Menü ana çerçevesi
+local menu = Instance.new("Frame")
+menu.Size = UDim2.new(0, 300, 0, 400)
+menu.Position = UDim2.new(0.5, -150, 0.5, -200)
+menu.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+menu.BorderSizePixel = 0
+menu.Visible = false
+menu.Active = true
+menu.Draggable = true
+menu.Parent = gui
 
--- Yüzen CH Logosu (sürüklenebilir) 🌀
-local CHLogo = Instance.new("TextButton")
-CHLogo.Name = "CHLogo"
-CHLogo.Text = "CH"
-CHLogo.Font = Enum.Font.GothamBlack
-CHLogo.TextSize = 28
-CHLogo.TextColor3 = Color3.fromRGB(255, 255, 255)
-CHLogo.BackgroundColor3 = Color3.fromRGB(10, 10, 50) -- Mavi tonlarında
-CHLogo.BorderSizePixel = 0
-CHLogo.Size = UDim2.new(0, 60, 0, 60)
-CHLogo.Position = UDim2.new(0, 15, 0.5, -30)
-CHLogo.Parent = ScreenGui
-CHLogo.Active = true
-CHLogo.Draggable = true
+-- Menü başlık
+local title = Instance.new("TextLabel", menu)
+title.Size = UDim2.new(1, 0, 0, 40)
+title.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+title.TextColor3 = Color3.new(1, 1, 1)
+title.Font = Enum.Font.FredokaOne
+title.Text = "💠 Team Celat's Hub 💠"
+title.TextSize = 20
 
--- Menü Frame (başlangıçta görünmez) 📋
-local MenuFrame = Instance.new("Frame")
-MenuFrame.Name = "MenuFrame"
-MenuFrame.Size = UDim2.new(0, 320, 0, 480)
-MenuFrame.Position = UDim2.new(0, 85, 0.5, -240)
-MenuFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 60)
-MenuFrame.BorderSizePixel = 0
-MenuFrame.Visible = false
-MenuFrame.Parent = ScreenGui
-MenuFrame.Active = true
-MenuFrame.Draggable = true
+-- Menü Scroll
+local scroll = Instance.new("ScrollingFrame", menu)
+scroll.Size = UDim2.new(1, 0, 1, -40)
+scroll.Position = UDim2.new(0, 0, 0, 40)
+scroll.CanvasSize = UDim2.new(0, 0, 0, 1000)
+scroll.ScrollBarThickness = 6
+scroll.BackgroundTransparency = 1
 
--- Menü başlık etiketi 🏷️
-local TitleLabel = Instance.new("TextLabel")
-TitleLabel.Parent = MenuFrame
-TitleLabel.Size = UDim2.new(1, 0, 0, 45)
-TitleLabel.BackgroundColor3 = Color3.fromRGB(5, 5, 35)
-TitleLabel.BorderSizePixel = 0
-TitleLabel.Text = "Team Celat's Hub"
-TitleLabel.Font = Enum.Font.GothamBold
-TitleLabel.TextSize = 26
-TitleLabel.TextColor3 = Color3.fromRGB(100, 170, 255)
-TitleLabel.TextStrokeTransparency = 0.6
-
--- Menü kapatma butonu (sağ üstte ✖️) ❌
-local CloseBtn = Instance.new("TextButton")
-CloseBtn.Parent = MenuFrame
-CloseBtn.Size = UDim2.new(0, 32, 0, 32)
-CloseBtn.Position = UDim2.new(1, -40, 0, 6)
-CloseBtn.BackgroundColor3 = Color3.fromRGB(120, 30, 30)
-CloseBtn.Text = "✖"
-CloseBtn.Font = Enum.Font.GothamBold
-CloseBtn.TextSize = 24
-CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-CloseBtn.BorderSizePixel = 0
-CloseBtn.AutoButtonColor = true
-
-CloseBtn.MouseButton1Click:Connect(function()
-    MenuFrame.Visible = false
-end)
-
--- Dil seçimi yazısı 🌐
-local LangLabel = Instance.new("TextLabel")
-LangLabel.Parent = MenuFrame
-LangLabel.Size = UDim2.new(1, -20, 0, 32)
-LangLabel.Position = UDim2.new(0, 10, 0, 60)
-LangLabel.BackgroundTransparency = 1
-LangLabel.Text = "Select Language / Dil Seçiniz"
-LangLabel.Font = Enum.Font.Gotham
-LangLabel.TextSize = 20
-LangLabel.TextColor3 = Color3.fromRGB(200, 200, 255)
-LangLabel.TextStrokeTransparency = 0.8
-
--- Dil butonları 🟦🟩
-local languages = {"Türkçe 🇹🇷", "English 🇬🇧"}
-local selectedLang = nil
-
-local function clearLangButtons()
-    for _, child in pairs(MenuFrame:GetChildren()) do
-        if child:IsA("TextButton") and child.Name:find("LangBtn") then
-            child:Destroy()
-        end
-    end
-end
-
-local function createLangButton(lang, posX)
-    local btn = Instance.new("TextButton")
-    btn.Name = "LangBtn_" .. lang
-    btn.Parent = MenuFrame
-    btn.Size = UDim2.new(0, 140, 0, 45)
-    btn.Position = UDim2.new(0, 10 + (posX * 150), 0, 100)
-    btn.BackgroundColor3 = Color3.fromRGB(40, 40, 90)
-    btn.BorderSizePixel = 0
-    btn.Text = lang
+-- Buton ekleme fonksiyonu
+function AddMenuButton(text, emoji, yPos, callback)
+    local btn = Instance.new("TextButton", scroll)
+    btn.Size = UDim2.new(0.9, 0, 0, 40)
+    btn.Position = UDim2.new(0.05, 0, 0, yPos)
+    btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    btn.TextColor3 = Color3.new(1, 1, 1)
     btn.Font = Enum.Font.GothamBold
-    btn.TextSize = 20
-    btn.TextColor3 = Color3.fromRGB(230, 230, 255)
-    btn.AutoButtonColor = true
-
-    btn.MouseButton1Click:Connect(function()
-        selectedLang = lang
-        clearLangButtons()
-        MenuFrame.Visible = true
-        print("Dil seçildi: " .. selectedLang)
-        -- 2. bölüm kodunu buraya entegre edeceğiz
-    end)
+    btn.TextSize = 16
+    btn.Text = emoji.." "..text
+    btn.MouseButton1Click:Connect(callback)
 end
 
-for i, lang in ipairs(languages) do
-    createLangButton(lang, i - 1)
-end
-
--- CH logosuna basınca menü aç/kapa 🔵
-CHLogo.MouseButton1Click:Connect(function()
-    MenuFrame.Visible = not MenuFrame.Visible
+-- Menü Aç/Kapa Tuşu
+logo.MouseButton1Click:Connect(function()
+    menu.Visible = not menu.Visible
 end)
 
-print("Celat's Hub Bölüm 1 yüklendi! 🚀")
--- Celat's Hub MM2 Script - Bölüm 2/4
--- ESP & Highlight Sistemi 🕵️‍♂️✨
+print("✅ [Celat's Hub] Arayüz yüklendi!")
+-- BÖLÜM 2/5: Pro Özellikler - Otomatik Silah Alma ve Coin Magnet
 
-local RunService = game:GetService("RunService")
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local CoreGui = game:GetService("CoreGui")
-
--- Eski highlight klasörünü temizle 🧹
-local HighlightFolder = CoreGui:FindFirstChild("CH_Highlights")
-if HighlightFolder then
-    HighlightFolder:Destroy()
-end
-
-HighlightFolder = Instance.new("Folder")
-HighlightFolder.Name = "CH_Highlights"
-HighlightFolder.Parent = CoreGui
-
--- Renkler ve roller 🎨
-local colors = {
-    ["Murderer"] = Color3.fromRGB(255, 50, 50),  -- 🔴 Katil
-    ["Sheriff"] = Color3.fromRGB(50, 100, 255),  -- 🔵 Şerif
-    ["Innocent"] = Color3.fromRGB(50, 255, 50),  -- 🟢 Masum
-}
-
--- Oyuncunun rolünü al (oyuna göre uyarlanabilir)
-local function getRole(player)
-    local role = player:GetAttribute("Role")
-    if role then
-        return role
-    end
-    return "Innocent" -- default 🟢
-end
-
--- Highlight ekleme fonksiyonu 🎯
-local function addHighlight(player)
-    if not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then return end
-    if HighlightFolder:FindFirstChild(player.Name) then return end
-
-    local highlight = Instance.new("Highlight")
-    highlight.Name = player.Name
-    highlight.Adornee = player.Character
-    local role = getRole(player)
-    highlight.FillColor = colors[role] or Color3.new(1, 1, 1)
-    highlight.OutlineColor = colors[role] or Color3.new(1, 1, 1)
-    highlight.Parent = HighlightFolder
-end
-
--- Her Heartbeat'de güncelle 🕰️
-RunService.Heartbeat:Connect(function()
-    -- Eski highlightları temizle
-    for _, h in pairs(HighlightFolder:GetChildren()) do
-        if not Players:FindFirstChild(h.Name) or not Players[h.Name].Character then
-            h:Destroy()
-        end
-    end
-    -- Yeni highlight ekle
-    for _, player in pairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer and player.Character then
-            addHighlight(player)
-        end
-    end
-end)
-
-print("Celat's Hub Bölüm 2 yüklendi! 🎉")
--- Celat's Hub MM2 Script - Bölüm 3/4
--- Teleport Sistemleri + Menü Butonları ve Emojiler 🚀🔘
-
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local Workspace = game:GetService("Workspace")
-
-local MenuFrame = script.Parent or game:GetService("CoreGui").CelatsHubGUI.MenuFrame
-
--- Teleport butonlarını ekleyeceğimiz container (ScrollFrame ile kaydırma da yapabiliriz)
-local ScrollFrame = Instance.new("ScrollingFrame")
-ScrollFrame.Parent = MenuFrame
-ScrollFrame.Size = UDim2.new(1, -20, 1, -150)
-ScrollFrame.Position = UDim2.new(0, 10, 0, 130)
-ScrollFrame.BackgroundTransparency = 1
-ScrollFrame.BorderSizePixel = 0
-ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 300)
-ScrollFrame.ScrollBarThickness = 8
-
--- Buton oluşturma fonksiyonu (emoji ile) 😎
-local function createButton(name, emoji, posY, onClick)
-    local btn = Instance.new("TextButton")
-    btn.Name = name
-    btn.Size = UDim2.new(1, 0, 0, 45)
-    btn.Position = UDim2.new(0, 0, 0, posY)
-    btn.BackgroundColor3 = Color3.fromRGB(40, 40, 90)
-    btn.BorderSizePixel = 0
-    btn.Text = emoji .. "  " .. name
-    btn.Font = Enum.Font.GothamBold
-    btn.TextSize = 20
-    btn.TextColor3 = Color3.fromRGB(230, 230, 255)
-    btn.AutoButtonColor = true
-    btn.Parent = ScrollFrame
-
-    btn.MouseButton1Click:Connect(onClick)
-    return btn
-end
-
--- Teleport fonksiyonları örnek (lokasyon isimleri haritaya göre değişmeli) 📍
-local teleportLocations = {
-    ["Lobby"] = CFrame.new(0, 10, 0), -- Örnek konum, değiştirmelisin
-    ["Map Center"] = CFrame.new(50, 10, 50), -- Örnek
-    -- İstersen daha fazla ekle
-}
-
--- Teleport fonksiyonu 🎯
-local function teleportTo(locationName)
-    local cf = teleportLocations[locationName]
-    if cf and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        LocalPlayer.Character.HumanoidRootPart.CFrame = cf
-        print("Teleport edildi: " .. locationName)
-    else
-        warn("Teleport başarısız: " .. tostring(locationName))
-    end
-end
-
--- Butonları oluştur (emoji ve isimle) 🛠️
-local buttonList = {
-    {name = "Teleport Lobby", emoji = "🏠", action = function() teleportTo("Lobby") end},
-    {name = "Teleport Map Center", emoji = "🗺️", action = function() teleportTo("Map Center") end},
-    -- Buraya istediğin kadar ekle
-}
-
--- Butonları ScrollFrame içine diz
-for i, btnInfo in ipairs(buttonList) do
-    createButton(btnInfo.name, btnInfo.emoji, (i-1)*50, btnInfo.action)
-end
-
-print("Celat's Hub Bölüm 3 yüklendi! 🚀🎮")
--- Celat's Hub MM2 Script - Bölüm 4/4
--- Kill Menü, Aimbot & Chat Bildirimleri + Menü Kapatma Butonu ⚔️🎯💬
-
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local ChatService = game:GetService("Chat")
-local RunService = game:GetService("RunService")
-
-local MenuFrame = script.Parent or game:GetService("CoreGui").CelatsHubGUI.MenuFrame
-local ScrollFrame = MenuFrame:FindFirstChildOfClass("ScrollingFrame")
-
--- Kill Menüsü Butonları Listesi ve Emoji 🚩
-local killButtons = {
-    {name = "Katil'i Vur 🎯", emoji = "🔫"},
-    {name = "Şerifi Vur 🔵", emoji = "🔵"},
-    {name = "Masumları Vur 🟢", emoji = "🟢"},
-}
-
--- Aimbot aktifliği kontrolü 🎯
-local aimbotEnabled = false
-
--- Hedef oyuncu için aimbot fonksiyonu
-local function aimbot()
-    if not aimbotEnabled then return end
-    local target
-    for _, player in pairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer then
-            local role = player:GetAttribute("Role") or "Innocent"
-            if role == "Murderer" then
-                target = player
-                break
+-- Otomatik Silah Alma
+local autoGunActive = false
+local function AutoGunPickupToggle()
+    autoGunActive = not autoGunActive
+    if autoGunActive then
+        print("🔫 Otomatik Silah Alma aktif!")
+        spawn(function()
+            while autoGunActive do
+                local char = game.Players.LocalPlayer.Character
+                local root = char and char:FindFirstChild("HumanoidRootPart")
+                local gun = workspace:FindFirstChild("GunDrop")
+                if root and gun then
+                    root.CFrame = gun.CFrame + Vector3.new(0,1,0)
+                end
+                wait(0.5)
             end
-        end
-    end
-    if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
-        local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-        if hrp then
-            hrp.CFrame = CFrame.new(hrp.Position, target.Character.HumanoidRootPart.Position)
-        end
-    end
-end
-
--- Aimbot toggle butonu ekle 🎯
-local function createAimbotButton(posY)
-    local btn = Instance.new("TextButton")
-    btn.Name = "AimbotBtn"
-    btn.Size = UDim2.new(1, 0, 0, 45)
-    btn.Position = UDim2.new(0, 0, 0, posY)
-    btn.BackgroundColor3 = Color3.fromRGB(40, 90, 40)
-    btn.BorderSizePixel = 0
-    btn.Text = "🎯 Aimbot Kapalı"
-    btn.Font = Enum.Font.GothamBold
-    btn.TextSize = 20
-    btn.TextColor3 = Color3.fromRGB(230, 230, 255)
-    btn.AutoButtonColor = true
-    btn.Parent = ScrollFrame
-
-    btn.MouseButton1Click:Connect(function()
-        aimbotEnabled = not aimbotEnabled
-        btn.Text = aimbotEnabled and "🎯 Aimbot Açık" or "🎯 Aimbot Kapalı"
-        print("Aimbot durumu:", aimbotEnabled and "Açık" or "Kapalı")
-    end)
-end
-
--- Kill menü butonları oluştur ve işlevleri ata 🗡️
-local function createKillButtons(startY)
-    for i, info in ipairs(killButtons) do
-        local btn = Instance.new("TextButton")
-        btn.Name = info.name:gsub(" ", "") .. "Btn"
-        btn.Size = UDim2.new(1, 0, 0, 45)
-        btn.Position = UDim2.new(0, 0, 0, startY + (i-1)*50)
-        btn.BackgroundColor3 = Color3.fromRGB(70, 40, 40)
-        btn.BorderSizePixel = 0
-        btn.Text = info.emoji .. "  " .. info.name
-        btn.Font = Enum.Font.GothamBold
-        btn.TextSize = 20
-        btn.TextColor3 = Color3.fromRGB(230, 230, 255)
-        btn.AutoButtonColor = true
-        btn.Parent = ScrollFrame
-
-        btn.MouseButton1Click:Connect(function()
-            print(info.name .. " butonuna basıldı!")
-            -- Örnek: Katili vur fonksiyonu (bunu oyun RPC'sine göre doldur)
-            -- Burada sadece örnek console mesajı bırakıyorum
-            -- Gerçek oyunda RemoteEvent veya oyun fonksiyonları çağrılır
         end)
-    end
-end
-
--- Chat bildirim fonksiyonu (örnek) 🗣️
-local function sendChatNotification(message)
-    local Chat = game:GetService("Chat")
-    Chat:Chat(LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait(), message, Enum.ChatColor.Red)
-end
-
--- Menüye kapatma butonu (başka yeri kapatabilir) ❌
-local CloseBtn = MenuFrame:FindFirstChild("CloseBtn")
-if CloseBtn then
-    CloseBtn.MouseButton1Click:Connect(function()
-        MenuFrame.Visible = false
-        print("Menü kapatıldı ❌")
-    end)
-end
-
--- Aimbot butonunu ve Kill menü butonlarını oluştur
-createAimbotButton(ScrollFrame.CanvasSize.Y.Offset + 10)
-createKillButtons(ScrollFrame.CanvasSize.Y.Offset + 70)
-
--- RunService ile aimbot sürekli çalıştır
-RunService.Heartbeat:Connect(function()
-    if aimbotEnabled then
-        aimbot()
-    end
-end)
-
-print("Celat's Hub Bölüm 4 yüklendi! 🏆🔥")
-local RunService = game:GetService("RunService")
-local noclipEnabled = false
-local LocalPlayer = game:GetService("Players").LocalPlayer
-
-local function noclipToggle()
-    noclipEnabled = not noclipEnabled
-    if noclipEnabled then
-        print("Noclip Açıldı 🚀")
     else
-        print("Noclip Kapandı 🛑")
+        print("🔫 Otomatik Silah Alma kapandı!")
     end
 end
 
-RunService.Stepped:Connect(function()
-    if noclipEnabled and LocalPlayer.Character then
-        for _, part in pairs(LocalPlayer.Character:GetChildren()) do
-            if part:IsA("BasePart") and part.CanCollide then
-                part.CanCollide = false
+AddMenuButton("🔫 Otomatik Silah Alma", "🔫", 10, AutoGunPickupToggle)
+
+-- Coin Magnet
+local coinMagnetActive = false
+local function CoinMagnetToggle()
+    coinMagnetActive = not coinMagnetActive
+    if coinMagnetActive then
+        print("🪙 Coin Magnet aktif!")
+        spawn(function()
+            while coinMagnetActive do
+                for _, coin in pairs(workspace:GetDescendants()) do
+                    if coin.Name == "Coin" and coin:IsA("BasePart") then
+                        local root = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                        if root then
+                            coin.CFrame = root.CFrame
+                        end
+                    end
+                end
+                wait(0.5)
             end
-        end
-    elseif LocalPlayer.Character then
-        for _, part in pairs(LocalPlayer.Character:GetChildren()) do
-            if part:IsA("BasePart") and not part.CanCollide then
-                part.CanCollide = true
+        end)
+    else
+        print("🪙 Coin Magnet kapandı!")
+    end
+end
+
+AddMenuButton("🪙 Coin Magnet", "🪙", 60, CoinMagnetToggle)
+-- BÖLÜM 3/5: Anti-Fall ve Sesli ESP
+
+-- Anti-Fall
+local antiFallActive = false
+local function AntiFallToggle()
+    antiFallActive = not antiFallActive
+    if antiFallActive then
+        print("🚷 Anti-Fall aktif!")
+        spawn(function()
+            while antiFallActive do
+                local char = game.Players.LocalPlayer.Character
+                local root = char and char:FindFirstChild("HumanoidRootPart")
+                if root and root.Position.Y < -15 then
+                    root.CFrame = CFrame.new(0, 20, 0)
+                end
+                wait(0.3)
             end
+        end)
+    else
+        print("🚷 Anti-Fall kapandı!")
+    end
+end
+
+AddMenuButton("🚷 Anti-Fall (Düşme Koruması)", "🚷", 110, AntiFallToggle)
+
+-- Ses Efekti + ESP (Örnek)
+local espActive = false
+local function PlaySoundEffect(id)
+    local sound = Instance.new("Sound", game.Players.LocalPlayer:WaitForChild("PlayerGui"))
+    sound.SoundId = "rbxassetid://"..id
+    sound.Volume = 2
+    sound:Play()
+    game.Debris:AddItem(sound, 3)
+end
+
+local function ESPAndSoundToggle()
+    espActive = not espActive
+    if espActive then
+        print("🔊 ESP ve ses aktif!")
+        -- Buraya ESP setup kodu koyabilirsin
+        PlaySoundEffect(9118823104) -- Headshot sesi örnek
+    else
+        print("🔊 ESP ve ses kapandı!")
+        -- ESP kapatma işlemleri
+    end
+end
+
+AddMenuButton("👁️ ESP + Ses Efekti", "🔊", 160, ESPAndSoundToggle)
+-- BÖLÜM 4/5: Tema Renk Seçici & Menü Kapatma Butonu
+
+-- Tema değiştirme fonksiyonu
+local function ChangeTheme(color)
+    for _, v in pairs(menu:GetChildren()) do
+        if v:IsA("TextButton") then
+            v.BackgroundColor3 = color
         end
+    end
+    menu.BackgroundColor3 = color:lerp(Color3.new(0,0,0), 0.7)
+    title.BackgroundColor3 = color:lerp(Color3.new(0,0,0), 0.5)
+end
+
+AddMenuButton("❤️ Tema: Kırmızı", "❤️", 210, function()
+    ChangeTheme(Color3.fromRGB(150, 30, 30))
+    print("🎨 Tema kırmızıya değiştirildi!")
+end)
+
+AddMenuButton("💙 Tema: Mavi", "💙", 260, function()
+    ChangeTheme(Color3.fromRGB(0, 80, 160))
+    print("🎨 Tema maviye değiştirildi!")
+end)
+
+AddMenuButton("🖤 Tema: Koyu", "🖤", 310, function()
+    ChangeTheme(Color3.fromRGB(20, 20, 20))
+    print("🎨 Tema koyuya değiştirildi!")
+end)
+
+-- Menü kapatma butonu (sağ üst köşe)
+local closeBtn = Instance.new("TextButton", menu)
+closeBtn.Size = UDim2.new(0, 30, 0, 30)
+closeBtn.Position = UDim2.new(1, -35, 0, 5)
+closeBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
+closeBtn.TextColor3 = Color3.new(1,1,1)
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.TextSize = 20
+closeBtn.Text = "✖"
+closeBtn.MouseButton1Click:Connect(function()
+    menu.Visible = false
+    print("❌ Menü kapatıldı!")
+end)
+-- BÖLÜM 5/5: Katili, Şerifi, Masumları Vurma ve Aimbot Butonları
+
+local killingActive = {
+    murderer = false,
+    sheriff = false,
+    innocent = false
+}
+
+-- Öldürme fonksiyonu (örnek)
+local function KillByRole(roleName)
+    -- Bu fonksiyon, o role sahip oyuncuları öldürmeye çalışır
+    local players = game.Players:GetPlayers()
+    local localChar = player.Character
+    if not localChar or not localChar:FindFirstChild("HumanoidRootPart") then return end
+    for _, plr in pairs(players) do
+        if plr ~= player and plr.Team and plr.Team.Name == roleName and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+            -- Teleport veya öldürme işlemi (örnek)
+            localChar.HumanoidRootPart.CFrame = plr.Character.HumanoidRootPart.CFrame + Vector3.new(0,0,1)
+            wait(0.2)
+            -- Burada katili vurma kodu eklenmeli
+            print("🔪 "..plr.Name.." ("..roleName..") öldürüldü!")
+        end
+    end
+end
+
+local function ToggleKill(roleKey, roleDisplay)
+    killingActive[roleKey] = not killingActive[roleKey]
+    if killingActive[roleKey] then
+        print("🔪 "..roleDisplay.." öldürme aktif!")
+        spawn(function()
+            while killingActive[roleKey] do
+                KillByRole(roleDisplay)
+                wait(1)
+            end
+        end)
+    else
+        print("🔪 "..roleDisplay.." öldürme kapandı!")
+    end
+end
+
+AddMenuButton("🔴 Katili Vur", "🔴", 360, function() ToggleKill("murderer", "Murderer") end)
+AddMenuButton("🔵 Şerifi Vur", "🔵", 410, function() ToggleKill("sheriff", "Sheriff") end)
+AddMenuButton("🟢 Masumları Vur", "🟢", 460, function() ToggleKill("innocent", "Innocent") end)
+
+-- Basit Aimbot Butonu (aktif/pasif)
+local aimbotActive = false
+AddMenuButton("🎯 Aimbot Aç/Kapat", "🎯", 510, function()
+    aimbotActive = not aimbotActive
+    if aimbotActive then
+        print("🎯 Aimbot aktif!")
+        -- Buraya aimbot kodu entegre edilecek
+    else
+        print("🎯 Aimbot kapandı!")
+        -- Aimbot kapatma işlemi
     end
 end)
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
-local function enableGodMode()
-    if LocalPlayer.Character then
-        local humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            humanoid.Health = humanoid.MaxHealth
-            humanoid.MaxHealth = math.huge -- Sonsuz sağlık
-            humanoid.HealthChanged:Connect(function()
-                humanoid.Health = humanoid.MaxHealth
-            end)
-            print("God Mode Açıldı 🛡️")
-        end
-    end
-end
-
-local function disableGodMode()
-    if LocalPlayer.Character then
-        local humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            humanoid.MaxHealth = 100
-            print("God Mode Kapandı 🛡️")
-        end
-    end
-end
