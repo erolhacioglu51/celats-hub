@@ -1,0 +1,318 @@
+-- Celat's Hub - Steal A Car PRO
+-- Delta Executor uyumlu
+-- Hazırlayan: Erol Hacıoğlu & ChatGPT
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local player = Players.LocalPlayer
+local char = player.Character or player.CharacterAdded:Wait()
+local root = char:WaitForChild("HumanoidRootPart")
+local mouse = player:GetMouse()
+
+-- GUI oluşturma
+local CH = Instance.new("ScreenGui")
+CH.Name = "CelatsHub"
+CH.Parent = game.CoreGui
+
+-- Ana çerçeve
+local Frame = Instance.new("Frame")
+Frame.Size = UDim2.new(0, 320, 0, 450)
+Frame.Position = UDim2.new(0, 50, 0, 50)
+Frame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+Frame.BorderSizePixel = 0
+Frame.Parent = CH
+Frame.Visible = false
+Frame.Active = true
+Frame.Draggable = true
+
+-- Başlık
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+Title.Text = "🚗 Celat's Hub - Steal A Car PRO"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 20
+Title.Parent = Frame
+
+-- Kapat butonu
+local CloseBtn = Instance.new("TextButton")
+CloseBtn.Size = UDim2.new(0, 40, 0, 40)
+CloseBtn.Position = UDim2.new(1, -45, 0, 0)
+CloseBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
+CloseBtn.Text = "X"
+CloseBtn.TextColor3 = Color3.fromRGB(255,255,255)
+CloseBtn.Font = Enum.Font.GothamBold
+CloseBtn.TextSize = 24
+CloseBtn.Parent = Frame
+CloseBtn.MouseButton1Click:Connect(function()
+    Frame.Visible = false
+    OpenBtn.Visible = true
+end)
+
+-- Açma butonu
+local OpenBtn = Instance.new("TextButton")
+OpenBtn.Size = UDim2.new(0, 140, 0, 40)
+OpenBtn.Position = UDim2.new(0, 20, 0.5, 0)
+OpenBtn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+OpenBtn.Text = "🚗 Celat's Hub Aç"
+OpenBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+OpenBtn.Font = Enum.Font.GothamBold
+OpenBtn.TextSize = 18
+OpenBtn.Parent = CH
+
+OpenBtn.MouseButton1Click:Connect(function()
+    Frame.Visible = true
+    OpenBtn.Visible = false
+end)
+
+-- Fonksiyon: Toggle butonu yarat
+local function createToggle(name, parent, default, callback)
+    local TFrame = Instance.new("Frame")
+    TFrame.Size = UDim2.new(1, -20, 0, 30)
+    TFrame.Position = UDim2.new(0, 10, 0, 0)
+    TFrame.BackgroundTransparency = 1
+    TFrame.Parent = parent
+
+    local label = Instance.new("TextLabel")
+    label.Text = name
+    label.Size = UDim2.new(0.7, 0, 1, 0)
+    label.BackgroundTransparency = 1
+    label.TextColor3 = Color3.fromRGB(255,255,255)
+    label.Font = Enum.Font.Gotham
+    label.TextSize = 16
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = TFrame
+
+    local toggle = Instance.new("TextButton")
+    toggle.Size = UDim2.new(0, 50, 0, 25)
+    toggle.Position = UDim2.new(0.75, 0, 0, 2)
+    toggle.BackgroundColor3 = default and Color3.fromRGB(0, 180, 0) or Color3.fromRGB(180, 0, 0)
+    toggle.Text = default and "Açık" or "Kapalı"
+    toggle.TextColor3 = Color3.fromRGB(255,255,255)
+    toggle.Font = Enum.Font.GothamBold
+    toggle.TextSize = 14
+    toggle.Parent = TFrame
+
+    toggle.MouseButton1Click:Connect(function()
+        default = not default
+        toggle.BackgroundColor3 = default and Color3.fromRGB(0, 180, 0) or Color3.fromRGB(180, 0, 0)
+        toggle.Text = default and "Açık" or "Kapalı"
+        if callback then callback(default) end
+    end)
+
+    return TFrame, toggle
+end
+
+-- Özellikler container
+local FeaturesFrame = Instance.new("ScrollingFrame")
+FeaturesFrame.Size = UDim2.new(1, -20, 1, -50)
+FeaturesFrame.Position = UDim2.new(0, 10, 0, 40)
+FeaturesFrame.BackgroundTransparency = 1
+FeaturesFrame.BorderSizePixel = 0
+FeaturesFrame.ScrollBarThickness = 6
+FeaturesFrame.Parent = Frame
+
+local UIListLayout = Instance.new("UIListLayout")
+UIListLayout.Parent = FeaturesFrame
+UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayout.Padding = UDim.new(0, 8)
+
+-- Variables for features
+local speedHackEnabled = false
+local jumpHackEnabled = false
+local noClipEnabled = false
+local godModeEnabled = false
+local autoCashEnabled = false
+local autoStealEnabled = false
+local autoLaserEnabled = false
+
+-- Speed Hack
+createToggle("🚀 Speed Hack", FeaturesFrame, false, function(enabled)
+    speedHackEnabled = enabled
+    if enabled then
+        char.Humanoid.WalkSpeed = 100
+    else
+        char.Humanoid.WalkSpeed = 16
+    end
+end)
+
+-- Jump Hack
+createToggle("🦘 Super Jump", FeaturesFrame, false, function(enabled)
+    jumpHackEnabled = enabled
+    if enabled then
+        char.Humanoid.JumpPower = 120
+    else
+        char.Humanoid.JumpPower = 50
+    end
+end)
+
+-- NoClip
+local noclipConnection
+createToggle("👻 NoClip", FeaturesFrame, false, function(enabled)
+    noClipEnabled = enabled
+    if enabled then
+        noclipConnection = RunService.Stepped:Connect(function()
+            if char and char:FindFirstChild("Humanoid") and char.Humanoid.Health > 0 then
+                char.Humanoid:ChangeState(11)
+            end
+        end)
+    else
+        if noclipConnection then
+            noclipConnection:Disconnect()
+            noclipConnection = nil
+        end
+    end
+end)
+
+-- God Mode
+createToggle("🛡️ God Mode", FeaturesFrame, false, function(enabled)
+    godModeEnabled = enabled
+    if enabled then
+        -- Basit hasar engelleme
+        char.Humanoid.HealthChanged:Connect(function()
+            if char.Humanoid.Health < char.Humanoid.MaxHealth then
+                char.Humanoid.Health = char.Humanoid.MaxHealth
+            end
+        end)
+    end
+end)
+
+-- Auto Cash (Para Toplama)
+local autoCashConnection
+createToggle("💰 Otomatik Para Topla", FeaturesFrame, false, function(enabled)
+    autoCashEnabled = enabled
+    if enabled then
+        autoCashConnection = RunService.Heartbeat:Connect(function()
+            for _,v in pairs(workspace:GetDescendants()) do
+                if v:IsA("TouchTransmitter") and v.Parent.Name:lower():find("cash") then
+                    firetouchinterest(root, v.Parent, 0)
+                    wait(0.1)
+                    firetouchinterest(root, v.Parent, 1)
+                end
+            end
+        end)
+    else
+        if autoCashConnection then
+            autoCashConnection:Disconnect()
+            autoCashConnection = nil
+        end
+    end
+end)
+
+-- Auto Steal (En Yakın Arabayı Çal)
+local autoStealConnection
+createToggle("🚘 Otomatik Araba Çal", FeaturesFrame, false, function(enabled)
+    autoStealEnabled = enabled
+    if enabled then
+        autoStealConnection = RunService.Heartbeat:Connect(function()
+            local nearestCar
+            local minDist = math.huge
+            for _,veh in pairs(workspace:GetDescendants()) do
+                if veh:IsA("VehicleSeat") then
+                    local dist = (veh.Position - root.Position).Magnitude
+                    if dist < minDist then
+                        minDist = dist
+                        nearestCar = veh
+                    end
+                end
+            end
+            if nearestCar and minDist < 50 then
+                -- Aracın içine ışınlanma (koltuk)
+                local driverSeat = nearestCar
+                if driverSeat and driverSeat:IsA("VehicleSeat") then
+                    root.CFrame = driverSeat.CFrame + Vector3.new(0,3,0)
+                end
+            end
+        end)
+    else
+        if autoStealConnection then
+            autoStealConnection:Disconnect()
+            autoStealConnection = nil
+        end
+    end
+end)
+
+-- Otomatik Lazer Yenileme (Güvenlik Düğmesi)
+createToggle("🔁 Otomatik Lazer Yenile", FeaturesFrame, false, function(enabled)
+    autoLaserEnabled = enabled
+    if enabled then
+        coroutine.wrap(function()
+            while autoLaserEnabled do
+                wait(90) -- saniye bazlı, değiştirebilirsin
+                for _,v in pairs(workspace:GetDescendants()) do
+                    if v:IsA("ProximityPrompt") and v.Parent.Name:lower():find("button") then
+                        fireproximityprompt(v)
+                        print("✅ Otomatik lazer yenilendi (ProximityPrompt)")
+                        break
+                    elseif v:IsA("ClickDetector") and v.Parent.Name:lower():find("button") then
+                        fireclickdetector(v)
+                        print("✅ Otomatik lazer yenilendi (ClickDetector)")
+                        break
+                    elseif v:IsA("Part") and v.Name:lower():find("button") then
+                        firetouchinterest(root, v, 0)
+                        wait(0.1)
+                        firetouchinterest(root, v, 1)
+                        print("✅ Otomatik lazer yenilendi (TouchPart)")
+                        break
+                    end
+                end
+            end
+        end)()
+    end
+end)
+
+-- ESP (Araçları yeşil kutu ile gösterme)
+local espEnabled = false
+local espBoxes = {}
+
+createToggle("👁️ ESP (Araçlar)", FeaturesFrame, false, function(enabled)
+    espEnabled = enabled
+    if espEnabled then
+        for _,obj in pairs(workspace:GetDescendants()) do
+            if obj:IsA("VehicleSeat") then
+                if not espBoxes[obj] then
+                    local box = Instance.new("BoxHandleAdornment")
+                    box.Size = Vector3.new(6,4,12)
+                    box.Adornee = obj
+                    box.Color3 = Color3.fromRGB(0,255,0)
+                    box.Transparency = 0.4
+                    box.AlwaysOnTop = true
+                    box.Parent = obj
+                    espBoxes[obj] = box
+                end
+            end
+        end
+    else
+        for obj,box in pairs(espBoxes) do
+            if box then box:Destroy() end
+        end
+        espBoxes = {}
+    end
+end)
+
+-- GUI yüzen tuş (aç/kapa)
+local toggleBtn = Instance.new("TextButton")
+toggleBtn.Size = UDim2.new(0, 140, 0, 40)
+toggleBtn.Position = UDim2.new(0, 20, 0, 20)
+toggleBtn.BackgroundColor3 = Color3.fromRGB(0,0,0)
+toggleBtn.TextColor3 = Color3.fromRGB(255,255,255)
+toggleBtn.Text = "🚗 Celat's Hub"
+toggleBtn.Font = Enum.Font.GothamBold
+toggleBtn.TextSize = 18
+toggleBtn.Parent = CH
+
+toggleBtn.MouseButton1Click:Connect(function()
+    Frame.Visible = not Frame.Visible
+    toggleBtn.Visible = not Frame.Visible
+end)
+
+-- Script hazır mesajı
+print("✅ Celat's Hub – Steal A Car PRO scripti yüklendi!")
+
+-- Oyun içi hata önleyici (Karakter yeniden yüklendiğinde değerleri resetle)
+player.CharacterAdded:Connect(function(character)
+    char = character
+    root = char:WaitForChild("HumanoidRootPart")
+end)
