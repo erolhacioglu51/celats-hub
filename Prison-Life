@@ -1,0 +1,109 @@
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local Window = OrionLib:MakeWindow({Name = "Mega Universal Hub v2", HidePremium = false, SaveConfig = true, ConfigFolder = "UniversalHub"})
+
+-- Sekmeler
+local MainTab = Window:MakeTab({Name = "Ana Menu", Icon = "rbxassetid://4483345998", PremiumOnly = false})
+local MovementTab = Window:MakeTab({Name = "Hareket", Icon = "rbxassetid://4483345998", PremiumOnly = false})
+local VisualTab = Window:MakeTab({Name = "Gorsel (ESP)", Icon = "rbxassetid://4483345998", PremiumOnly = false})
+local CombatTab = Window:MakeTab({Name = "Savas / Makro", Icon = "rbxassetid://4483345998", PremiumOnly = false})
+
+-- Degiskenler
+local LocalPlayer = game.Players.LocalPlayer
+local InfiniteJumpEnabled = false
+local NoclipEnabled = false
+local AutoClickerEnabled = false
+
+-- ANA MENU
+MainTab:AddLabel("Her Oyunda Gecerli Universal Script Hub")
+MainTab:AddLabel("Yapimci: Sen!")
+
+-- HAREKET
+MovementTab:AddSlider({
+    Name = "Yurume Hizi (WalkSpeed)",
+    Min = 16, Max = 500, Default = 16, Color = Color3.fromRGB(0,255,255), Increment = 1, ValueName = "Hiz",
+    Callback = function(Value)
+        LocalPlayer.Character.Humanoid.WalkSpeed = Value
+    end    
+})
+
+MovementTab:AddSlider({
+    Name = "Ziplama Gucu (JumpPower)",
+    Min = 50, Max = 500, Default = 50, Color = Color3.fromRGB(0,255,255), Increment = 1, ValueName = "Guc",
+    Callback = function(Value)
+        LocalPlayer.Character.Humanoid.JumpPower = Value
+    end    
+})
+
+MovementTab:AddToggle({
+    Name = "Sonsuz Ziplama",
+    Default = false,
+    Callback = function(Value)
+        InfiniteJumpEnabled = Value
+    end    
+})
+
+game:GetService("UserInputService").JumpRequest:Connect(function()
+    if InfiniteJumpEnabled and LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
+        LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
+    end
+end)
+
+MovementTab:AddToggle({
+    Name = "Duvardan Gecme (Noclip)",
+    Default = false,
+    Callback = function(Value)
+        NoclipEnabled = Value
+    end    
+})
+
+game:GetService("RunService").Stepped:Connect(function()
+    if NoclipEnabled and LocalPlayer.Character then
+        for _, v in pairs(LocalPlayer.Character:GetDescendants()) do
+            if v:IsA("BasePart") then
+                v.CanCollide = false
+            end
+        end
+    end
+end)
+
+-- VISUAL (ESP)
+VisualTab:AddButton({
+    Name = "Basit ESP Aktif Et",
+    Callback = function()
+        for _, player in pairs(game.Players:GetChildren()) do
+            if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                if not player.Character.HumanoidRootPart:FindFirstChild("BoxHighlight") then
+                    local Highlight = Instance.new("Highlight")
+                    Highlight.Name = "BoxHighlight"
+                    Highlight.FillColor = Color3.fromRGB(255, 0, 0)
+                    Highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+                    Highlight.FillTransparency = 0.5
+                    Highlight.Parent = player.Character
+                end
+            end
+        end
+        OrionLib:MakeNotification({Name = "ESP", Content = "Oyuncular isaretlendi!", Time = 3})
+    end
+})
+
+-- COMBAT
+CombatTab:AddToggle({
+    Name = "Otomatik Tiklayici (Auto Clicker)",
+    Default = false,
+    Callback = function(Value)
+        AutoClickerEnabled = Value
+    end    
+})
+
+task.spawn(function()
+    while true do
+        task.wait(0.01)
+        if AutoClickerEnabled then
+            local VirtualUser = game:GetService("VirtualUser")
+            VirtualUser:CaptureController()
+            VirtualUser:ClickButton1(Vector2.new(0,0))
+        end
+    end
+end)
+
+OrionLib:Init()
